@@ -25,6 +25,8 @@ gameovery = {1,2,3,4,5,1,3,5,1,3,4,5,1,2,3,4,5,1,3,1,2,3,4,5,1,2,3,4,5,2,3,2,1,2
 
 gameovernum = 48+43;
 
+score = 0;
+
 function love.load()
 	love.window.setMode(1000,800);
 	love.window.setTitle("Teleporting Ы");
@@ -75,10 +77,11 @@ function love.draw()
 	
 	love.graphics.setColor(0,66,66);
 	love.graphics.rectangle("fill",30,30,160,40);
+	love.graphics.rectangle("fill",love.window.getWidth()-30-160,30,160,40);
 	love.graphics.setColor(0,255,0);
 	love.graphics.rectangle("fill",60,40,tpPower,20);
-	
-	
+	love.graphics.setColor(255,255,255);
+	love.graphics.print("Score:" .. score, love.window.getWidth()-30-160+45,30+13,0,1,1)
 end
 
 function love.mousepressed(x, y, button)
@@ -139,6 +142,7 @@ function love.update(dt)
 		diffY = heroy-foody[i]+25;
 		
 		if (diffX<30) and (diffX>0) and (diffY<30) and (diffY>0) then
+			score = score + 100;
 			hero_speed = hero_speed+0.1;
 			foodx[i] = math.floor(math.random(1000));
 			foody[i] = math.floor(math.random(800));
