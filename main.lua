@@ -1,8 +1,10 @@
-herox=0
-heroy=0
+hero_startx = 0
+hero_starty = 0
+enemy_startx = 300
+enemy_starty = 400
 
-enemyx=300
-enemyy=400
+hero_startSpeed = 3
+enemy_startSpeed = 2
 
 numParticles = 100000
 frequenceParticles = 1000;
@@ -13,9 +15,10 @@ foodx = {}
 foody = {}
 foodEmitters = {}
 
-hero_speed = 3;
-enemy_speed = 2;
+
 num_food = 48+43;
+
+dead = false;
 
 
 gameoverx = {1,1,1,1,1,2,2,2,3,3,3,3,5,5,5,5,5,6,6,7,7,7,7,7,9,9,9,9,9,10,11,12,13,13,13,13,13,15,15,15,15,15,16,16,16,17,17,17,
@@ -23,13 +26,29 @@ gameoverx = {1,1,1,1,1,2,2,2,3,3,3,3,5,5,5,5,5,6,6,7,7,7,7,7,9,9,9,9,9,10,11,12,
 gameovery = {1,2,3,4,5,1,3,5,1,3,4,5,1,2,3,4,5,1,3,1,2,3,4,5,1,2,3,4,5,2,3,2,1,2,3,4,5,1,2,3,4,5,1,3,5,1,3,5,
 			7,8,9,10,11,7,11,7,8,9,10,11,7,8,9,10,11,10,9,8,7,7,8,9,10,11,7,9,11,7,9,11,7,8,9,10,11,7,9,7,8,10,11};
 
-gameovernum = 48+43;
+gameovernum = num_food;
 
 score = 0;
 
+function startGame()
+	herox=hero_startx
+	heroy=hero_starty
+
+	enemyx=enemy_startx
+	enemyy=enemy_starty
+	
+	hero_speed = hero_startSpeed;
+	enemy_speed = enemy_startSpeed;
+	
+	for i=1,num_food do
+		foodx[i] = math.floor(math.random(1000));
+		foody[i] = math.floor(math.random(800));
+	end
+end
+
 function love.load()
 	love.window.setMode(1000,800);
-	love.window.setTitle("Teleporting Ы");
+	love.window.setTitle("I LOVE teleporting");
 	hero = love.graphics.newImage("hero.png")
 	enemy = love.graphics.newImage("enemy.png")
 	
@@ -50,8 +69,7 @@ function love.load()
 	
 	for i=1,num_food do
 		food[i] = love.graphics.newImage("food.png")
-		foodx[i] = math.floor(math.random(1000));
-		foody[i] = math.floor(math.random(800));
+		
 		foodEmitter = love.graphics.newParticleSystem(love.graphics.newImage("food.png"), numParticles)
 		foodEmitter:setParticleLifetime(0.4, 1.5);
 		foodEmitter:setEmissionRate(frequenceParticles);
@@ -61,14 +79,19 @@ function love.load()
 		
 		foodEmitters[i] = foodEmitter
 	end
+	
+	startGame();
 end
 
 function love.draw()
 	love.graphics.setColor(255,255,255);
 	love.graphics.draw(nmeP, enemyx+25, enemyy+25)
 	love.graphics.draw(enemy, enemyx, enemyy)	
-	love.graphics.draw(myP, herox+25, heroy+25)
-	love.graphics.draw(hero, herox, heroy)
+	
+	if(dead == false) then
+		love.graphics.draw(myP, herox+25, heroy+25)
+		love.graphics.draw(hero, herox, heroy)
+	end
 	
 	for i=1,num_food do
 		love.graphics.draw(foodEmitters[i], foodx[i]+12.5, foody[i]+12.5)
@@ -85,7 +108,7 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-   if button == 'l' and herox<5000 and tpPower == 100 then
+   if button == 'l' and dead == false and tpPower == 100 then
       herox = x
       heroy = y
 	  tpPower = 0
@@ -94,37 +117,50 @@ end
 
 function love.update(dt)
 	--enemy
-	if(enemyx < herox) then
-		goRight=1
+	if dead == false then
+		if(enemyx < herox) then
+			goRight=1
+		else
+			goRight=-1
+		end
+		if(enemyy < heroy) then
+			goDown=1
+		else
+			goDown=-1
+		end
 	else
-		goRight=-1
-	end
-	if(enemyy < heroy) then
-		goDown=1
-	else
-		goDown=-1
+	    goRight=3
+		goDown=0
 	end
 	enemyx = enemyx + (math.floor(math.random()*11)-5+goRight*enemy_speed)
 	enemyy = enemyy + (math.floor(math.random()*11)-5+ goDown*enemy_speed)
 	
 	--me
-	if(tpPower < 100) then
-		tpPower = tpPower+1;
+	if (dead == false) then
+		if(tpPower < 100) then
+			tpPower = tpPower+1;
+		end
+		if(love.keyboard.isDown("left")) then
+			herox = herox - hero_speed;
+		end
+		if(love.keyboard.isDown("right")) then
+			herox = herox + hero_speed;
+		end
+		if(love.keyboard.isDown("up")) then
+			heroy = heroy - hero_speed;
+		end
+		if(love.keyboard.isDown("down")) then
+			heroy = heroy + hero_speed;
+		end
+		
+		myP:update(dt);
+		nmeP:update(dt);
 	end
-	if(love.keyboard.isDown("left")) then
-		herox = herox - hero_speed;
+	
+	if(love.keyboard.isDown("r")) then
+		dead = false;
+		startGame();
 	end
-	if(love.keyboard.isDown("right")) then
-		herox = herox + hero_speed;
-	end
-	if(love.keyboard.isDown("up")) then
-		heroy = heroy - hero_speed;
-	end
-	if(love.keyboard.isDown("down")) then
-		heroy = heroy + hero_speed;
-	end
-	myP:update(dt);
-	nmeP:update(dt);
 	
 	--food
 	for i=1,num_food do
@@ -138,17 +174,21 @@ function love.update(dt)
 			foody[i] = math.floor(math.random(800));
 		end
 		
-		diffX = herox-foodx[i]+25;
-		diffY = heroy-foody[i]+25;
+		if dead == false then
 		
-		if (diffX<30) and (diffX>0) and (diffY<30) and (diffY>0) then
-			score = score + 100;
-			hero_speed = hero_speed+0.1;
-			foodx[i] = math.floor(math.random(1000));
-			foody[i] = math.floor(math.random(800));
+			diffX = herox-foodx[i]+25;
+			diffY = heroy-foody[i]+25;
+			
+			if (diffX<30) and (diffX>0) and (diffY<30) and (diffY>0) then
+				score = score + 100;
+				hero_speed = hero_speed+0.1;
+				foodx[i] = math.floor(math.random(1000));
+				foody[i] = math.floor(math.random(800));
+			end
+		
 		end
 		
-		if herox > 5000 and gameovernum>=i then
+		if dead == true and gameovernum>=i then
 			foodx[i] = foodx[i] + ((gameoverx[i]+1)*50 - foodx[i])/6;
 			foody[i] = foody[i] + ((gameovery[i]+1)*50 - foody[i])/6;
 			if(math.random()<0.0002) then
@@ -170,7 +210,7 @@ function love.update(dt)
 	diffX = enemyx - herox;
 	diffY = enemyy - heroy;
 	if (diffX<50) and (diffX>0) and (diffY<50) and (diffY>0) then
-		herox=100000
+		dead = true;
 	end
 	
 	
