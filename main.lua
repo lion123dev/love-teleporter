@@ -59,6 +59,8 @@ function startGame()
 		foodx[i] = math.floor(math.random(love.window.getWidth()));
 		foody[i] = math.floor(math.random(love.window.getHeight()));
 	end
+	
+	tpPower = tpPowerCooldown;
 end
 
 function love.load()
@@ -184,7 +186,7 @@ function love.update(dt)
 	--food
 	for i=1,num_food do
 		foodEmitters[i]:update(dt);
-		if (rectsIntersect(enemyx-enemy_width/2,enemyy-enemy_height/2,enemy_width,enemy_height,foodx[i]-food_width/2,foody[i]-food_height/2,food_width,food_height)) then
+		if (rectsIntersect(enemyx,enemyy,enemy_width,enemy_height,foodx[i],foody[i],food_width,food_height)) then
 			enemy_speed = enemy_speed+enemy_incrementSpeed;
 			foodx[i] = math.floor(math.random(love.window.getWidth()));
 			foody[i] = math.floor(math.random(love.window.getHeight()));
@@ -192,7 +194,7 @@ function love.update(dt)
 		
 		if dead == false then
 		
-			if (rectsIntersect(herox-hero_width/2,heroy-hero_height/2,hero_width,hero_height,foodx[i]-food_width/2,foody[i]-food_height/2,food_width,food_height)) then
+			if (rectsIntersect(herox,heroy,hero_width,hero_height,foodx[i],foody[i],food_width,food_height)) then
 				score = score + food_score_cost;
 				hero_speed = hero_speed+hero_incrementSpeed;
 				foodx[i] = math.floor(math.random(love.window.getWidth()));
@@ -220,7 +222,7 @@ function love.update(dt)
 	end
 	
 	--lose condition
-	if (rectsIntersect(herox-hero_width/2,heroy-hero_height/2,hero_width,hero_height,enemyx-enemy_width/2,enemyy-enemy_height/2,enemy_width,enemy_height)) then
+	if (rectsIntersect(herox,heroy,hero_width,hero_height,enemyx,enemyy,enemy_width,enemy_height)) then
 		dead = true;
 	end
 	
