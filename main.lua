@@ -26,7 +26,7 @@ particle_radius = 320
 particle_lifetimeMin = 0.4
 particle_lifetimeMax = 1.5
 particle_size = {0.3,0.1,0.1}
-numParticles = 1000
+numParticles = 10000
 frequenceParticles = 1000
 
 gui_indent = 30
@@ -68,17 +68,16 @@ function startGame()
 	end
 	
 	tpPower = tpPowerCooldown;
-	
-	--music
-	data = love.sound.newSoundData('music.mp3');
-	music = love.audio.newSource('music.mp3');
-	music:play();
-	samples = data:getSampleCount()
-	sampleRate = data:getSampleRate()
-	channels = data:getChannels()
 end
 
 function love.load()
+	data = love.sound.newSoundData('music.mp3');
+	music = love.audio.newSource('music.mp3');
+	samples = data:getSampleCount()
+	sampleRate = data:getSampleRate()
+	channels = data:getChannels()
+	music:play();
+	
 	love.window.setMode(window_width,window_height,{resizable = true});
 	love.window.setTitle("I LOVE teleporting");
 	hero = love.graphics.newImage("hero.png")
@@ -156,11 +155,15 @@ function love.update(dt)
 	startSample = music:tell("seconds")*sampleRate*channels;
 	min_=1;
 	max_=-1;
+	prev=0;
+	volume2=0;
 	if (startSample-analysisDepth <= 0) or (startSample+analysisDepth >= samples) then
 		volume=0;
 	else
 		for i=startSample-analysisDepth,startSample+analysisDepth do
 			tmp = data:getSample(i);
+			volume2 = volume2 + math.abs(tmp-prev);
+			prev=tmp;
 			if tmp > max_ then
 				max_ = tmp
 			end
@@ -169,12 +172,14 @@ function love.update(dt)
 			end
 		end
 		volume = max_-min_;
+		volume2 = volume2/analysisDepth;
 	end
 	
-	myP:setEmissionRate(math.floor(frequenceParticles*volume))
-	nmeP:setEmissionRate(math.floor(frequenceParticles*volume))
+	myP:setEmissionRate(math.floor(frequenceParticles*volume2))
+	nmeP:setEmissionRate(math.floor(frequenceParticles*volume2))
 	for i=1,num_food do
-		foodEmitters[i]:setEmissionRate(math.floor(frequenceParticles*volume))
+		foodEmitters[i]:setEmissionRate(math.floor(frequenceParticles*volume2))
+		foodEmitters[i]:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
 	end
 	
 	--enemy
