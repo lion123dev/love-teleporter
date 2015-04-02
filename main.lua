@@ -45,6 +45,13 @@ gameovernum = num_food;
 
 score = 0;
 
+--music
+samples = 0
+sampleRate=0
+volume=0
+analysisDepth = 50
+channels = 0
+
 function startGame()
 	herox=hero_startx
 	heroy=hero_starty
@@ -61,6 +68,14 @@ function startGame()
 	end
 	
 	tpPower = tpPowerCooldown;
+	
+	--music
+	data = love.sound.newSoundData('music.mp3');
+	music = love.audio.newSource('music.mp3');
+	music:play();
+	samples = data:getSampleCount()
+	sampleRate = data:getSampleRate()
+	channels = data:getChannels()
 end
 
 function love.load()
@@ -137,6 +152,31 @@ function love.mousepressed(x, y, button)
 end
 
 function love.update(dt)
+	--music
+	startSample = music:tell("seconds")*sampleRate*channels;
+	min_=1;
+	max_=-1;
+	if (startSample-analysisDepth <= 0) or (startSample+analysisDepth >= samples) then
+		volume=0;
+	else
+		for i=startSample-analysisDepth,startSample+analysisDepth do
+			tmp = data:getSample(i);
+			if tmp > max_ then
+				max_ = tmp
+			end
+			if tmp < min_ then
+				min_ = tmp
+			end
+		end
+		volume = max_-min_;
+	end
+	
+	myP:setEmissionRate(math.floor(frequenceParticles*volume))
+	nmeP:setEmissionRate(math.floor(frequenceParticles*volume))
+	for i=1,num_food do
+		foodEmitters[i]:setEmissionRate(math.floor(frequenceParticles*volume))
+	end
+	
 	--enemy
 	if dead == false then
 		if(enemyx < herox) then
