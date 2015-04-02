@@ -132,6 +132,25 @@ function love.draw()
 		love.graphics.draw(foodEmitters[i], foodx[i]+food_width/2, foody[i]+food_height/2)
 		love.graphics.draw(food_img, foodx[i], foody[i])
 	end
+	allowed_rass = 70;
+	if dead then
+		for i=1,num_food do
+			index=1;
+			variants = {};
+			for try=1,num_food do
+				if not(try == i) then
+					rass = math.sqrt((foodx[try]-foodx[i])^2+(foody[try]-foody[i])^2)
+					if rass < allowed_rass then
+						table.insert(variants, try);
+					end;
+				end;
+			end
+			index = variants[math.random(#variants)];
+			if not(table.getn(variants) == 0) then
+				love.graphics.line(foodx[i]+food_width/2,foody[i]+food_height/2,foodx[index]+food_width/2,foody[index]+food_height/2);
+			end
+		end
+	end
 	
 	love.graphics.setColor(0,66,66);
 	love.graphics.rectangle("fill",gui_indent,gui_indent,160,40);
@@ -177,6 +196,8 @@ function love.update(dt)
 	
 	myP:setEmissionRate(math.floor(frequenceParticles*volume2))
 	nmeP:setEmissionRate(math.floor(frequenceParticles*volume2))
+	myP:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
+	nmeP:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
 	for i=1,num_food do
 		foodEmitters[i]:setEmissionRate(math.floor(frequenceParticles*volume2))
 		foodEmitters[i]:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
@@ -249,8 +270,8 @@ function love.update(dt)
 		end
 		
 		if dead == true and gameovernum>=i then
-			foodx[i] = foodx[i] + ((gameoverx[i]+1)*50*love.window.getWidth()/1000 - foodx[i])/6;
-			foody[i] = foody[i] + ((gameovery[i]+1)*50*love.window.getHeight()/800 - foody[i])/6;
+			foodx[i] = foodx[i] + (math.random()-0.5)*volume2*30 + ((gameoverx[i]+1)*50*love.window.getWidth()/1000 - foodx[i])/6;
+			foody[i] = foody[i] + (math.random()-0.5)*volume2*30 +((gameovery[i]+1)*50*love.window.getHeight()/800 - foody[i])/6;
 			if(math.random()<0.0002) then
 				nextpt = math.floor(math.random(num_food));
 				
@@ -265,7 +286,6 @@ function love.update(dt)
 			end
 		end
 	end
-	
 	--lose condition
 	if (rectsIntersect(herox,heroy,hero_width,hero_height,enemyx,enemyy,enemy_width,enemy_height)) then
 		dead = true;
