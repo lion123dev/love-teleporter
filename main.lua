@@ -19,6 +19,7 @@ tpPower = tpPowerCooldown;
 food = {}
 foodx = {}
 foody = {}
+foodlink = {}
 foodEmitters = {}
 food_score_cost = 100
 
@@ -35,16 +36,35 @@ num_food = 48+43;
 
 dead = false;
 
+--1 6 9  13 18 20  25        33  38 43 46
+--2      14    21  26 30  32 34  39
+--3 710  15 19 22  27   31   35  40 44 47
+--4  11  16    23  28        36  41 
+--5 812  17    24  29        37  42 45 48
+
+--49 54 56  61       69 70 75 78 81 86 88
+--50    57   62     68  71       82    89
+--51    58    63   67   72 76 79 83 87
+--52    59     64 66    73       84    90
+--53 55 60      65      74 77 80 85    91
 
 gameoverx = {1,1,1,1,1,2,2,2,3,3,3,3,5,5,5,5,5,6,6,7,7,7,7,7,9,9,9,9,9,10,11,12,13,13,13,13,13,15,15,15,15,15,16,16,16,17,17,17,
-			1,1,1,1,1,2,2,3,3,3,3,3,5,5,5,6,7,8,9,9,9,11,11,11,11,11,12,12,12,13,13,13,15,15,15,15,15,16,16,17,17,17,17};
-gameovery = {1,2,3,4,5,1,3,5,1,3,4,5,1,2,3,4,5,1,3,1,2,3,4,5,1,2,3,4,5,2,3,2,1,2,3,4,5,1,2,3,4,5,1,3,5,1,3,5,
-			7,8,9,10,11,7,11,7,8,9,10,11,7,8,9,10,11,10,9,8,7,7,8,9,10,11,7,9,11,7,9,11,7,8,9,10,11,7,9,7,8,10,11};
-
+			1,1,1,1,1,2,2,3,3,3,3,3, 5,5,5,6,7,8,9,9,9,11,11,11,11,11,12,12,12,13,13,13,15,15,15,15,15,16,16,17,17,17,17};
+gameovery ={1,2,3,4,5,1,3,5,1,3,4,5, 1,2,3,4,5,1,3,1,2,3,4,5,1,2,3,4,5,2,3,2,1,2,3,4,5,1,2,3,4,5,1,3,5,1,3,5,
+			7,8,9,10,11,7,11,7,8,9,10,11, 7,8,9,10,11,10,9,8,7,7,8,9,10,11,7,9,11,7,9,11,7,8,9,10,11,7,9,7,8,10,11};
+gameoverlink =  {2,3,4,5,8,1,10,12,6,11,12,11,
+				14,15,19,15,16,13,22,18,20,21,22,23,
+				30,25,26,27,28,31,32,33,34,35,36,37,36,
+				39,40,41,42,41,38,40,42,43,44,45,
+				
+				50,51,52,53,55,49,60,54,56,57,58,59,
+				62,63,64,65,66,67,68,69,68,
+				71,72,73,74,73,70,72,74,75,76,77,
+				86,81,82,83,84,88,83,89,87,87,90};
+			
 gameovernum = num_food;
 
 score = 0;
-
 --music
 samples = 0
 sampleRate=0
@@ -133,22 +153,10 @@ function love.draw()
 		love.graphics.draw(food_img, foodx[i], foody[i])
 	end
 	allowed_rass = 70;
+	
 	if dead then
 		for i=1,num_food do
-			index=1;
-			variants = {};
-			for try=1,num_food do
-				if not(try == i) then
-					rass = math.sqrt((foodx[try]-foodx[i])^2+(foody[try]-foody[i])^2)
-					if rass < allowed_rass then
-						table.insert(variants, try);
-					end;
-				end;
-			end
-			index = variants[math.random(#variants)];
-			if not(table.getn(variants) == 0) then
-				love.graphics.line(foodx[i]+food_width/2,foody[i]+food_height/2,foodx[index]+food_width/2,foody[index]+food_height/2);
-			end
+			love.graphics.line(foodx[i]+food_width/2,foody[i]+food_height/2,foodx[gameoverlink[i]]+food_width/2,foody[gameoverlink[i]]+food_height/2);
 		end
 	end
 	
