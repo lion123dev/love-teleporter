@@ -28,7 +28,7 @@ function GameObject:render()
 end
 
 function GameObject:collide(_secondObject)
-	if ((((_secondObject.x >= self.x) and (_secondObject.x < self.x+self.width)) or ((self.x >= _secondObject.x) and (self.x < _secondObject.x+_secondObject.width))) and (((_secondObject.y >= self.y) and (_secondObject.y < y1+self.height)) or ((self.y >= _secondObject.y) and (self.y < _secondObject.y+_secondObject.height)))) then
+	if ((((_secondObject.x >= self.x) and (_secondObject.x < self.x+self.width)) or ((self.x >= _secondObject.x) and (self.x < _secondObject.x+_secondObject.width))) and (((_secondObject.y >= self.y) and (_secondObject.y < self.y+self.height)) or ((self.y >= _secondObject.y) and (self.y < _secondObject.y+_secondObject.height)))) then
 		return true
 	end
 	return false

@@ -19,10 +19,7 @@ enemy_incrementSpeed = 0.5
 tpPowerCooldown = 100;
 tpPower = tpPowerCooldown;
 food = {}
-foodx = {}
-foody = {}
 foodlink = {}
-foodEmitters = {}
 food_score_cost = 100
 
 particle_radius = 320
@@ -75,22 +72,18 @@ analysisDepth = 50
 channels = 0
 
 player = GameObject.create()
+enemy = GameObject.create()
 
 function startGame()
-	--herox=hero_startx
-	--heroy=hero_starty
 	
 	player:setPosition(hero_startx, hero_starty)
-
-	enemyx=enemy_startx
-	enemyy=enemy_starty
+	enemy:setPosition(enemy_startx, enemy_starty)
 	
 	hero_speed = hero_startSpeed;
 	enemy_speed = enemy_startSpeed;
 	
 	for i=1,num_food do
-		foodx[i] = math.floor(math.random(love.window.getWidth()));
-		foody[i] = math.floor(math.random(love.window.getHeight()));
+		food[i]:setPosition(math.random(love.window.getWidth()),math.random(love.window.getHeight()))
 	end
 	
 	tpPower = tpPowerCooldown;
@@ -106,41 +99,17 @@ function love.load()
 	
 	love.window.setMode(window_width,window_height,{resizable = true});
 	love.window.setTitle("I LOVE teleporting");
-	hero = love.graphics.newImage("hero.png")
-	hero_width = hero:getWidth()
-	hero_height = hero:getHeight()
-	enemy = love.graphics.newImage("enemy.png")
-	enemy_width = hero:getWidth()
-	enemy_height = hero:getHeight()
 	
-	-- myP = love.graphics.newParticleSystem(love.graphics.newImage("hero.png"), numParticles)
-	nmeP = love.graphics.newParticleSystem(love.graphics.newImage("enemy.png"), numParticles)
-	
-	-- myP:setParticleLifetime(particle_lifetimeMin, particle_lifetimeMax);
-    -- myP:setEmissionRate(frequenceParticles);
-	-- myP:setLinearAcceleration(-particle_radius, -particle_radius, particle_radius, particle_radius);
-	-- myP:setSizeVariation(0);
-	-- myP:setSizes(unpack(particle_size))
 	player:setImage("hero.png")
 	player:setParticleSystem(numParticles,frequenceParticles, particle_lifetimeMin, particle_lifetimeMax, particle_radius, 0);
 	
-	nmeP:setParticleLifetime(particle_lifetimeMin, particle_lifetimeMax);
-    nmeP:setEmissionRate(frequenceParticles);
-	nmeP:setLinearAcceleration(-particle_radius, -particle_radius, particle_radius, particle_radius);
-	nmeP:setSizeVariation(0);
-	nmeP:setSizes(unpack(particle_size))
-	food_img = love.graphics.newImage("food.png")
-	food_width = food_img:getWidth()
-	food_height = food_img:getHeight()
+	enemy:setImage("enemy.png")
+	enemy:setParticleSystem(numParticles,frequenceParticles, particle_lifetimeMin, particle_lifetimeMax, particle_radius, 0);
+	
 	for i=1,num_food do
-		foodEmitter = love.graphics.newParticleSystem(love.graphics.newImage("food.png"), numParticles)
-		foodEmitter:setParticleLifetime(particle_lifetimeMin, particle_lifetimeMax);
-		foodEmitter:setEmissionRate(frequenceParticles);
-		foodEmitter:setLinearAcceleration(-particle_radius, -particle_radius, particle_radius, particle_radius);
-		foodEmitter:setSizeVariation(0);
-		foodEmitter:setSizes(unpack(particle_size))
-		
-		foodEmitters[i] = foodEmitter
+		food[i] = GameObject.create()
+		food[i]:setImage("food.png")
+		food[i]:setParticleSystem(numParticles,frequenceParticles, particle_lifetimeMin, particle_lifetimeMax, particle_radius, 0);
 	end
 	
 	startGame();
@@ -148,24 +117,20 @@ end
 
 function love.draw()
 	love.graphics.setColor(255,255,255);
-	love.graphics.draw(nmeP, enemyx+enemy_width/2, enemyy+enemy_height/2)
-	love.graphics.draw(enemy, enemyx, enemyy)	
+	enemy:render()
 	
 	if(dead == false) then
 		player:render()
-		--love.graphics.draw(myP, herox+hero_width/2, heroy+hero_width/2)
-		--love.graphics.draw(hero, herox, heroy)
 	end
 	
 	for i=1,num_food do
-		love.graphics.draw(foodEmitters[i], foodx[i]+food_width/2, foody[i]+food_height/2)
-		love.graphics.draw(food_img, foodx[i], foody[i])
+		food[i]:render()
 	end
 	allowed_rass = 70;
 	
 	if dead then
 		for i=1,num_food do
-			love.graphics.line(foodx[i]+food_width/2,foody[i]+food_height/2,foodx[gameoverlink[i]]+food_width/2,foody[gameoverlink[i]]+food_height/2);
+			love.graphics.line(food[i].x+food[i].width/2,food[i].y+food[i].height/2,food[gameoverlink[i]].x+food[gameoverlink[i]].width/2,food[gameoverlink[i]].y+food[gameoverlink[i]].height/2);
 		end
 	end
 	
@@ -211,22 +176,22 @@ function love.update(dt)
 	end
 	
 	player.particle:setEmissionRate(math.floor(frequenceParticles*volume2))
-	nmeP:setEmissionRate(math.floor(frequenceParticles*volume2))
+	enemy.particle:setEmissionRate(math.floor(frequenceParticles*volume2))
 	player.particle:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
-	nmeP:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
+	enemy.particle:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
 	for i=1,num_food do
-		foodEmitters[i]:setEmissionRate(math.floor(frequenceParticles*volume2))
-		foodEmitters[i]:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
+		food[i].particle:setEmissionRate(math.floor(frequenceParticles*volume2))
+		food[i].particle:setSizes(unpack({volume2/4,volume2/2,volume2/2}));
 	end
 	
 	--enemy
 	if dead == false then
-		if(enemyx < player.x) then
+		if(enemy.x < player.x) then
 			goRight=1
 		else
 			goRight=-1
 		end
-		if(enemyy < player.y) then
+		if(enemy.y < player.y) then
 			goDown=1
 		else
 			goDown=-1
@@ -235,9 +200,7 @@ function love.update(dt)
 	    goRight=3
 		goDown=0
 	end
-	enemyx = enemyx + (math.floor(math.random()*11)-5+goRight*enemy_speed)
-	enemyy = enemyy + (math.floor(math.random()*11)-5+ goDown*enemy_speed)
-	
+	enemy:move(math.floor(math.random()*11)-5+goRight*enemy_speed, math.floor(math.random()*11)-5+ goDown*enemy_speed)
 	--me
 	if (dead == false) then
 		if(tpPower < tpPowerCooldown) then
@@ -256,9 +219,8 @@ function love.update(dt)
 			player:moveY(hero_speed);
 		end
 		
-		--myP:update(dt);
 		player:update(dt);
-		nmeP:update(dt);
+		enemy:update(dt);
 	end
 	
 	if(love.keyboard.isDown("r")) then
@@ -268,43 +230,35 @@ function love.update(dt)
 	
 	--food
 	for i=1,num_food do
-		foodEmitters[i]:update(dt);
-		if (rectsIntersect(enemyx,enemyy,enemy_width,enemy_height,foodx[i],foody[i],food_width,food_height)) then
+		food[i]:update(dt);
+		if (enemy:collide(food[i])) then
 			enemy_speed = enemy_speed+enemy_incrementSpeed;
-			foodx[i] = math.floor(math.random(love.window.getWidth()));
-			foody[i] = math.floor(math.random(love.window.getHeight()));
+			food[i]:setPosition(math.random(love.window.getWidth()), math.random(love.window.getHeight()))
 		end
 		
 		if dead == false then
 		
-			if (rectsIntersect(player.x,player.y,player.width,player.height,foodx[i],foody[i],food_width,food_height)) then
+			if (player:collide(food[i])) then
 				score = score + food_score_cost;
 				hero_speed = hero_speed+hero_incrementSpeed;
-				foodx[i] = math.floor(math.random(love.window.getWidth()));
-				foody[i] = math.floor(math.random(love.window.getHeight()));
+				food[i]:setPosition(math.random(love.window.getWidth()), math.random(love.window.getHeight()))
 			end
 		
 		end
 		
 		if dead == true and gameovernum>=i then
-			foodx[i] = foodx[i] + (math.random()-0.5)*volume2*30 + ((gameoverx[i]+1)*50*love.window.getWidth()/1000 - foodx[i])/6;
-			foody[i] = foody[i] + (math.random()-0.5)*volume2*30 +((gameovery[i]+1)*50*love.window.getHeight()/800 - foody[i])/6;
+			food[i]:move((math.random()-0.5)*volume2*30 + ((gameoverx[i]+1)*50*love.window.getWidth()/1000 - food[i].x)/6,(math.random()-0.5)*volume2*30 +((gameovery[i]+1)*50*love.window.getHeight()/800 - food[i].y)/6)
 			if(math.random()<0.0002) then
 				nextpt = math.floor(math.random(num_food));
-				
-				rx = foodx[i]
-				ry = foody[i]
-				
-				foodx[i] = foodx[nextpt];
-				foody[i] = foody[nextpt];
-				
-				foodx[nextpt] = rx;
-				foody[nextpt] = ry;
+				rx = food[i].x
+				ry = food[i].y
+				food[i]:setPosition(food[nextpt].x,food[nextpt].y);
+				food[nextpt]:setPosition(rx, ry);
 			end
 		end
 	end
 	--lose condition
-	if (rectsIntersect(player.x,player.y,player.width,player.height,enemyx,enemyy,enemy_width,enemy_height)) then
+	if (player:collide(enemy)) then
 		dead = true;
 	end
 	
