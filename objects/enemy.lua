@@ -1,6 +1,6 @@
 require("objects.dynamic_object")
 ENEMY_START_SPEED = 1
-ENEMY_INC_SPEED = 0
+ENEMY_INC_SPEED = 0.1
 ENEMY_STARTX = 300
 ENEMY_STARTY = 400
 Enemy = { }

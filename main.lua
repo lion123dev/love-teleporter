@@ -132,7 +132,7 @@ function love.update(dt)
 	max_=-1;
 	prev=0;
 	volume2=0;
-	if (startSample-analysisDepth <= 0) or (startSample+analysisDepth >= samples) then
+	if (startSample-analysisDepth <= 0) or (startSample+analysisDepth >= samples*channels) then
 		volume=0;
 	else
 		for i=startSample-analysisDepth,startSample+analysisDepth do
