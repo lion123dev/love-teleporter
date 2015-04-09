@@ -49,8 +49,7 @@ sampleRate=0
 volume=0
 analysisDepth = 440
 channels = 0
-
-
+duration = 0
 
 function startGame()
 	player:reset()
@@ -67,6 +66,7 @@ function love.load()
 	samples = data:getSampleCount()
 	sampleRate = data:getSampleRate()
 	channels = data:getChannels()
+	duration = data:getDuration()
 	music:play();
 	
 	--load window
@@ -117,8 +117,8 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-   if button == '2' then
-   
+   if button == 'r' then
+	  music:seek(x/love.window.getWidth()*duration,"seconds")
    end
    if button == 'l' and player:canTeleport() then
       player:teleport(x,y)
